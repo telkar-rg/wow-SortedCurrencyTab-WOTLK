@@ -1,9 +1,11 @@
-## Interface: 90002
+## Interface: 30300
 ## Title: Sorted Currency Tab
-## Author: Kirsia - Dalaran (US)
-## Version: 2.2
+## Author: Kirsia - Dalaran (US), Telkar-RG
+## Version: 1.0
 ## Notes: Allows the currency categories to be sorted.
-## Date: October 10, 2020
+## Notes-deDE: Erlaubt das Sortieren der Abzeichen.
+
 ## LoadWith: Blizzard_TokenUI
 ## SavedVariables: SortedCurrencyTabData
+
 SortedCurrencyTab.lua
