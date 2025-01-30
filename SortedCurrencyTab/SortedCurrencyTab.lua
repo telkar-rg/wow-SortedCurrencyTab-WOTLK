@@ -71,7 +71,7 @@ local InitList = function(self)
 
 	local curIndex = 0
 	for i=1,C_CurrencyInfo.GetCurrencyListSize() do
-		local result = C_CurrencyInfo.GetCurrencyListInfo(i)
+		local result = GetCurrencyListInfo(i)
 
 		if result.isHeader then
 			curIndex = curIndex + 1
@@ -247,7 +247,7 @@ local CreateArrows = function()
 	end
 end
 
-C_CurrencyInfo.GetCurrencyListInfo = function(index)
+GetCurrencyListInfo = function(index)
 	if index < 1 then
 		return nil
 	elseif index > #sct_data then
@@ -257,14 +257,14 @@ C_CurrencyInfo.GetCurrencyListInfo = function(index)
 	return oldGetCurrencyListInfo(sct_data[index])
 end
 
-C_CurrencyInfo.ExpandCurrencyList = function(index, value)
+ExpandCurrencyList = function(index, value)
 	if index < 1 then
 		return nil
 	elseif index > #sct_data then
 		return oldExpandCurrencyList(index, value) -- just pass their index
 	end
 
-	local name = C_CurrencyInfo.GetCurrencyListInfo(index).name
+	local name = GetCurrencyListInfo(index).name
 	local collapsed = not value
 	SortedCurrencyTabData["collapsed"][name] = collapsed or nil -- remove on true (nil it out), rather than keep it around
 
@@ -286,7 +286,7 @@ end
 	return oldGetCurrencyListLink(sct_data[index])
 end ]]--
 
-C_CurrencyInfo.SetCurrencyUnused = function(index, value)
+SetCurrencyUnused = function(index, value)
 	if index < 1 then
 		return nil
 	elseif index > #sct_data then
@@ -299,7 +299,7 @@ C_CurrencyInfo.SetCurrencyUnused = function(index, value)
 	return unpack(returnValues)
 end
 
-C_CurrencyInfo.SetCurrencyBackpack = function(index, value)
+SetCurrencyBackpack = function(index, value)
 	if index < 1 then
 		return nil
 	elseif index > #sct_data then
@@ -309,7 +309,7 @@ C_CurrencyInfo.SetCurrencyBackpack = function(index, value)
 	return oldSetCurrencyBackpack(sct_data[index], value)
 end
 
-GameTooltip.SetCurrencyToken = function(self, index)
+SetCurrencyToken = function(self, index)
 	if index < 1 then
 		return nil
 	elseif index > #sct_data then
@@ -330,9 +330,9 @@ local UnusedHidingFrame = CreateFrame("Frame")
 UnusedHidingFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 UnusedHidingFrame:SetScript("OnEvent", function()
 	for i=1,C_CurrencyInfo.GetCurrencyListSize() do
-		local result = C_CurrencyInfo.GetCurrencyListInfo(i)
+		local result = GetCurrencyListInfo(i)
 		if result and SortedCurrencyTabData["collapsed"][result.name] and result.isHeaderExpanded then
-			C_CurrencyInfo.ExpandCurrencyList(i, false)
+			ExpandCurrencyList(i, false)
 		end
 	end
 end)
