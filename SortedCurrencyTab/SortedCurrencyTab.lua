@@ -70,7 +70,7 @@ local InitList = function(self)
 	wipe(sct_data)
 
 	local curIndex = 0
-	for i=1,C_CurrencyInfo.GetCurrencyListSize() do
+	for i=1,GetCurrencyListSize() do
 		local result = GetCurrencyListInfo(i)
 
 		if result.isHeader then
@@ -329,7 +329,7 @@ TokenFrameContainer.update = TokenFrame_Update -- Need to set this, as it was ke
 local UnusedHidingFrame = CreateFrame("Frame")
 UnusedHidingFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 UnusedHidingFrame:SetScript("OnEvent", function()
-	for i=1,C_CurrencyInfo.GetCurrencyListSize() do
+	for i=1,GetCurrencyListSize() do
 		local result = GetCurrencyListInfo(i)
 		if result and SortedCurrencyTabData["collapsed"][result.name] and result.isHeaderExpanded then
 			ExpandCurrencyList(i, false)
