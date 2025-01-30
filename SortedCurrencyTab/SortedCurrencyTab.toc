@@ -1,0 +1,9 @@
+## Interface: 90002
+## Title: Sorted Currency Tab
+## Author: Kirsia - Dalaran (US)
+## Version: 2.2
+## Notes: Allows the currency categories to be sorted.
+## Date: October 10, 2020
+## LoadWith: Blizzard_TokenUI
+## SavedVariables: SortedCurrencyTabData
+SortedCurrencyTab.lua
