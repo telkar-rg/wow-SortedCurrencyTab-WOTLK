@@ -1,45 +1,25 @@
---[[
-
-	Sorted Currency Tab - version 2.2 (10/10/20)
-	Kirsia - Dalaran (US)
-
-	Change Log
-	==========
-	2.2		- Updated for Shadowlands compatibility
-
-	2.1		- Corrected sorting arrows not disappearing when you used the mouse wheel to scroll the currency frame
-			- Added command to reset sort order to default (current categories are sorted in the game's default order [alphabetically]; new ones will still be added to the bottom)
-			-- Use /sortcurrencytab, /sortcurtab, or /sortcurrency
-
-	2.0		- Added way for users to customize order (up/down arrows on category headers)
-			- As the order is now customizable, Warlords of Draenor and Dungeon & Raid categories are no longer sorted to the top and bottom, respectively, by default.
-			- Localization should be a non-issue, as the addon will sort and organize using the localized names returned in-game (localization.lua removed).
-			- Collapsed status of the categories is now remembered between sessions
-
-	1.2a		- Removed an extraneous print() (debug) statement
-
-	1.2		- Added localization support (full support for deDE, esMX, ptBR; possibly also esES, frFR, and itIT)
-			- Defaulted search for WoD currency header to Blizzard-provided constant (theoretically adds partial support for all localizations)
-
-	1.1		- Fixed issue where new currencies would not display on currency tab
-			- Made data variable local (was global for testing and forgot to set it back)
-
-	1.0		- Initial Release
-	==========
-
-]]--
-
+-- Saved Variabled
 SortedCurrencyTabData = SortedCurrencyTabData or {}
 SortedCurrencyTabData["order"] = SortedCurrencyTabData["order"] or {}
 SortedCurrencyTabData["collapsed"] = SortedCurrencyTabData["collapsed"] or {}
 
-local oldGetCurrencyListInfo = C_CurrencyInfo.GetCurrencyListInfo
-local oldExpandCurrencyList = C_CurrencyInfo.ExpandCurrencyList
-local oldGetCurrencyListLink = C_CurrencyInfo.GetCurrencyListLink
-local oldSetCurrencyUnused = C_CurrencyInfo.SetCurrencyUnused
-local oldSetCurrencyBackpack = C_CurrencyInfo.SetCurrencyBackpack
-local oldGameTooltipSetCurrencyToken = GameTooltip.SetCurrencyToken
-local oldTokenFrameUpdate = TokenFrame_Update
+-- -- store original WoW API
+-- local oldGetCurrencyListInfo = C_CurrencyInfo.GetCurrencyListInfo
+-- local oldExpandCurrencyList = C_CurrencyInfo.ExpandCurrencyList
+-- local oldGetCurrencyListLink = C_CurrencyInfo.GetCurrencyListLink -- does not exist in 3.3.5
+-- local oldSetCurrencyUnused = C_CurrencyInfo.SetCurrencyUnused
+-- local oldSetCurrencyBackpack = C_CurrencyInfo.SetCurrencyBackpack
+-- local oldGameTooltipSetCurrencyToken = GameTooltip.SetCurrencyToken
+-- local oldTokenFrameUpdate = TokenFrame_Update
+
+-- https://wowwiki-archive.fandom.com/wiki/Widget_API?oldid=2263587
+-- https://wowwiki-archive.fandom.com/wiki/World_of_Warcraft_API?oldid=2308628
+local oldGetCurrencyListInfo         = GetCurrencyListInfo 	-- GetCurrencyListInfo(index) - return information about an element in the currency list.
+local oldExpandCurrencyList          = ExpandCurrencyList 	-- ExpandCurrencyList(index, state) - sets the expanded/collapsed state of a currency list header.
+local oldSetCurrencyUnused           = SetCurrencyUnused 	-- SetCurrencyUnused(id, state) - alters whether a currency is marked as unused.
+local oldSetCurrencyBackpack         = SetCurrencyBackpack 	-- SetCurrencyBackpack(id, state) - alters whether a currency is tracked.
+local oldGameTooltipSetCurrencyToken = SetCurrencyToken 	-- SetCurrencyToken(tokenId) - Shows the tooltip for the specified token
+local oldTokenFrameUpdate            = TokenFrame_Update
 
 local sct_data = {}
 local sct_jagged = {}
@@ -295,7 +275,8 @@ C_CurrencyInfo.ExpandCurrencyList = function(index, value)
 	return unpack(returnValues)
 end
 
-C_CurrencyInfo.GetCurrencyListLink = function(index)
+-- does not exist in 3.3.5
+--[[ C_CurrencyInfo.GetCurrencyListLink = function(index)
 	if index < 1 then
 		return nil
 	elseif index > #sct_data then
@@ -303,7 +284,7 @@ C_CurrencyInfo.GetCurrencyListLink = function(index)
 	end
 
 	return oldGetCurrencyListLink(sct_data[index])
-end
+end ]]--
 
 C_CurrencyInfo.SetCurrencyUnused = function(index, value)
 	if index < 1 then
