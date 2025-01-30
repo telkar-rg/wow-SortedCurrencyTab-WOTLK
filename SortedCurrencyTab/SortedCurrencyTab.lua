@@ -21,6 +21,16 @@ local oldSetCurrencyBackpack         = SetCurrencyBackpack 	-- SetCurrencyBackpa
 local oldGameTooltipSetCurrencyToken = SetCurrencyToken 	-- SetCurrencyToken(tokenId) - Shows the tooltip for the specified token
 local oldTokenFrameUpdate            = TokenFrame_Update
 
+local pastelColors = {  "|cFFFF8080", "|cFF80FF80", "|cFF8080FF", "|cFFFFFF80", "|cFFFF80FF", "|cFF8080FF",
+						"|cFFFF4040", "|cFF40FF40", "|cFF4040FF", "|cFFFFFF40", "|cFFFF40FF", "|cFF4040FF",
+						"|cFFFFC0C0", "|cFFC0FFC0", "|cFFC0C0FF", "|cFFFFFFC0", "|cFFFFC0FF", "|cFFC0C0FF",
+						}
+local oldPrint = print
+local print = function(...) 
+	local line = strjoin("; ", tostringall(...) )
+	oldPrint(pastelColors[(strlen(line) % #pastelColors) + 1] .. "-- SCT:|r", line)
+end
+
 local sct_data = {}
 local sct_jagged = {}
 local sct_headers = {}
@@ -65,23 +75,27 @@ local FlattenList = function(jaggedList, flatList)
 end
 
 local InitList = function(self)
+	-- print("CALLED InitList")
 	wipe(sct_headers)
 	wipe(sct_jagged)
 	wipe(sct_data)
 
 	local curIndex = 0
 	for i=1,GetCurrencyListSize() do
-		local result = GetCurrencyListInfo(i)
+		-- GetCurrencyListInfo
+		-- name, isHeader, isExpanded, isUnused, isWatched, count, extraCurrencyType, icon, itemID
+		local result = {GetCurrencyListInfo(i)}
 
-		if result.isHeader then
+		-- if result.isHeader then
+		if result[2] then
 			curIndex = curIndex + 1
 
-			tinsert(sct_headers, result.name)
+			tinsert(sct_headers, result[1])
 			tinsert(sct_jagged, {i})
 
-			if not tContains(SortedCurrencyTabData["order"], result.name) then
-				tinsert(SortedCurrencyTabData["order"], result.name) -- add newly discovered currency categories to the bottom
-				SortedCurrencyTabData["collapsed"][result.name] = not result.isHeaderExpanded or nil -- store proper collapsed state
+			if not tContains(SortedCurrencyTabData["order"], result[1]) then
+				tinsert(SortedCurrencyTabData["order"], result[1]) -- add newly discovered currency categories to the bottom
+				SortedCurrencyTabData["collapsed"][result[1]] = not result[3] or nil -- store proper collapsed state
 			end
 		else
 			tinsert(sct_jagged[curIndex], i)
@@ -94,6 +108,7 @@ local InitList = function(self)
 end
 
 SortedCurrencyTab_MoveUp = function(name)
+	-- print("CALLED SortedCurrencyTab_MoveUp", name)
 	local activeIndex = indexOf(sct_headers, name)
 	local storageIndex = indexOf(SortedCurrencyTabData["order"], name)
 
@@ -113,6 +128,7 @@ SortedCurrencyTab_MoveUp = function(name)
 end
 
 SortedCurrencyTab_MoveDown = function(name)
+	-- print("CALLED SortedCurrencyTab_MoveDown", name)
 	local activeIndex = indexOf(sct_headers, name)
 	local storageIndex = indexOf(SortedCurrencyTabData["order"], name)
 
@@ -132,14 +148,20 @@ SortedCurrencyTab_MoveDown = function(name)
 end
 
 local CreateArrows = function()
+	-- print("CALLED CreateArrows")
 	if (not TokenFrameContainer.buttons) then
+		-- print("returned CreateArrows")
 		return;
 	end
 
 	local scrollFrame = TokenFrameContainer
+	-- print("scrollFrame",scrollFrame)
 	local offset = HybridScrollFrame_GetOffset(scrollFrame)
+	-- print("offset",offset)
 	local buttons = scrollFrame.buttons
+	-- print("buttons",buttons)
 	local numButtons = #buttons
+	-- print("numButtons",numButtons)
 	local button, index;
 	for i=1, numButtons do
 		button = buttons[i];
@@ -149,14 +171,16 @@ local CreateArrows = function()
 		if not button.sctMoveUp then
 			local b = CreateFrame("Button", nil, button)
 			button.sctMoveUp = b
-			b:SetPoint("TOPRIGHT", -1, -0.5)
+			b:SetPoint("TOPRIGHT", -20, -0.5)
 			b:SetSize(16, 8)
 			b:Hide()
 
 			local t = b:CreateTexture(nil, "BACKGROUND")
-			t:SetTexture("Interface\\PaperDollInfoFrame\\StatSortArrows.blp")
+			-- t:SetTexture("Interface\\PaperDollInfoFrame\\StatSortArrows.blp")
+			t:SetTexture("Interface\\TALENTFRAME\\UI-TalentArrows.blp")
 			t:SetAlpha(0.6)
-			t:SetTexCoord(0, 1, 0, 0.5)
+			-- t:SetTexCoord(0, 1, 0, 0.5)
+			t:SetTexCoord(0, 0.5, 0.375, 0.125)
 			t:SetAllPoints()
 			b.texture = t
 
@@ -175,7 +199,8 @@ local CreateArrows = function()
 			end)
 
 			b:SetScript("OnClick", function(self)
-				SortedCurrencyTab_MoveUp(self:GetParent().name:GetText())
+				-- SortedCurrencyTab_MoveUp(self:GetParent().name:GetText())
+				SortedCurrencyTab_MoveUp(self:GetParent():GetText())
 			end)
 		end
 
@@ -187,9 +212,10 @@ local CreateArrows = function()
 			b:Hide()
 
 			local t = b:CreateTexture(nil, "BACKGROUND")
-			t:SetTexture("Interface\\PaperDollInfoFrame\\StatSortArrows.blp")
+			-- t:SetTexture("Interface\\PaperDollInfoFrame\\StatSortArrows.blp")
+			t:SetTexture("Interface\\TALENTFRAME\\UI-TalentArrows.blp")
 			t:SetAlpha(0.6)
-			t:SetTexCoord(0, 1, 0.5, 1)
+			t:SetTexCoord(0, 0.5, 0.125, 0.375)
 			t:SetAllPoints()
 			b.texture = t
 
@@ -208,7 +234,8 @@ local CreateArrows = function()
 			end)
 
 			b:SetScript("OnClick", function(self)
-				SortedCurrencyTab_MoveDown(self:GetParent().name:GetText())
+				-- SortedCurrencyTab_MoveDown(self:GetParent().name:GetText())
+				SortedCurrencyTab_MoveDown(self:GetParent():GetText())
 			end)
 		end
 
@@ -248,6 +275,7 @@ local CreateArrows = function()
 end
 
 GetCurrencyListInfo = function(index)
+	-- print("CALLED GetCurrencyListInfo")
 	if index < 1 then
 		return nil
 	elseif index > #sct_data then
@@ -258,13 +286,15 @@ GetCurrencyListInfo = function(index)
 end
 
 ExpandCurrencyList = function(index, value)
+	-- print("CALLED ExpandCurrencyList")
 	if index < 1 then
 		return nil
 	elseif index > #sct_data then
 		return oldExpandCurrencyList(index, value) -- just pass their index
 	end
-
-	local name = GetCurrencyListInfo(index).name
+	
+	-- local name = GetCurrencyListInfo(index).name
+	local name = GetCurrencyListInfo(index)
 	local collapsed = not value
 	SortedCurrencyTabData["collapsed"][name] = collapsed or nil -- remove on true (nil it out), rather than keep it around
 
@@ -287,6 +317,7 @@ end
 end ]]--
 
 SetCurrencyUnused = function(index, value)
+	-- print("CALLED SetCurrencyUnused")
 	if index < 1 then
 		return nil
 	elseif index > #sct_data then
@@ -300,6 +331,7 @@ SetCurrencyUnused = function(index, value)
 end
 
 SetCurrencyBackpack = function(index, value)
+	-- print("CALLED SetCurrencyBackpack")
 	if index < 1 then
 		return nil
 	elseif index > #sct_data then
@@ -310,6 +342,7 @@ SetCurrencyBackpack = function(index, value)
 end
 
 SetCurrencyToken = function(self, index)
+	-- print("CALLED SetCurrencyToken")
 	if index < 1 then
 		return nil
 	elseif index > #sct_data then
@@ -320,6 +353,7 @@ SetCurrencyToken = function(self, index)
 end
 
 TokenFrame_Update = function()
+	-- print("CALLED TokenFrame_Update")
 	InitList()
 	oldTokenFrameUpdate()
 	CreateArrows()
@@ -330,8 +364,9 @@ local UnusedHidingFrame = CreateFrame("Frame")
 UnusedHidingFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 UnusedHidingFrame:SetScript("OnEvent", function()
 	for i=1,GetCurrencyListSize() do
-		local result = GetCurrencyListInfo(i)
-		if result and SortedCurrencyTabData["collapsed"][result.name] and result.isHeaderExpanded then
+		-- local result = GetCurrencyListInfo(i)
+		local result = {GetCurrencyListInfo(i)}
+		if result and SortedCurrencyTabData["collapsed"][result[1]] and result[3] then
 			ExpandCurrencyList(i, false)
 		end
 	end
